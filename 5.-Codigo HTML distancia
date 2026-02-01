@@ -1,0 +1,55 @@
+<div id="card" style="
+  background: linear-gradient(135deg, #FF0000, #0000FF, #FF0000);
+  color: white;
+  padding: 20px;
+  border-radius: 16px;
+  width: 260px;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+  animation: float 3s ease-in-out infinite;
+">
+
+  <!-- ÍCONO ANIMADO -->
+  <div class="icono" style="font-size:40px;">
+    📏
+  </div>
+
+  <h3 style="
+    margin: 5px 0 10px 0;
+    color: #b3e5fc;
+  ">
+    Distancia Ultrasónica
+  </h3>
+
+  <!-- VALOR (NO SE TOCA) -->
+  <div id="valor" class="valor">
+    {{ value }} cm
+  </div>
+
+</div>
+
+<style>
+  .valor {
+    font-size: 38px;
+    font-weight: bold;
+  }
+
+  /* Animación de flotación */
+  @keyframes float {
+    0%   { transform: translateY(0px); }
+    50%  { transform: translateY(-6px); }
+    100% { transform: translateY(0px); }
+  }
+
+  /* Pulso del ícono */
+  .icono {
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+</style>

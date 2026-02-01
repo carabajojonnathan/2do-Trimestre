@@ -1,0 +1,67 @@
+#include <WiFi.h>
+#include <ThingerESP32.h>
+
+/* ===== THINGER.IO ===== */
+#define USERNAME "jonnathan714"
+#define DEVICE_ID "Jonna"
+#define DEVICE_CREDENTIAL "714126"
+
+/* ===== WIFI ===== */
+#define SSID "IPLANET_CARABAJO."
+#define SSID_PASSWORD "0104113345"
+
+#define TRIG_PIN 5
+#define ECHO_PIN 18
+
+ThingerESP32 thing(USERNAME, DEVICE_ID, DEVICE_CREDENTIAL);
+
+float distancia = 0;
+float ultima_distancia = 0;
+
+float medirDistancia() {
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+
+  long duracion = pulseIn(ECHO_PIN, HIGH, 25000); // 25 ms
+
+  if (duracion == 0) return -1;
+
+  return duracion * 0.034 / 2;
+}
+
+void setup() {
+  Serial.begin(115200);
+
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+
+  thing.add_wifi(SSID, SSID_PASSWORD);
+
+  thing["distance"] >> outputValue(distancia);
+}
+
+bool celebracion = false;
+
+void loop() {
+  float d = medirDistancia();
+
+  if (d > 0 && d < 400) {        // rango válido HC-SR04
+    distancia = d;
+    ultima_distancia = d;
+  } else {
+    distancia = ultima_distancia;  // mantiene último valor válido
+  }
+
+  Serial.println(distancia);
+
+  thing.handle();
+  delay(200);   // 🔥 clave para estabilidad
+  distancia = medirDistancia();
+
+  celebracion = (distancia >= 30 && distancia <= 31);
+
+  thing.handle();
+}

@@ -1,0 +1,49 @@
+#define THINGER_SERIAL_DEBUG
+#define THINGER_FREE_ACCOUNT
+
+#include <ThingerESP32.h>
+#include <DHT.h>
+
+#define USERNAME "jonnathan714"
+#define DEVICE_ID "Jonna"
+#define DEVICE_CREDENTIAL "714126"
+
+#define SSID "MECATRONICA_3ABC"
+#define SSID_PASSWORD "MEC2025@"
+
+#define DHTPIN 23
+#define DHTTYPE DHT11
+
+ThingerESP32 thing(USERNAME, DEVICE_ID, DEVICE_CREDENTIAL);
+DHT dht(DHTPIN, DHTTYPE);
+
+float temperatura = 0;
+float humedad = 0;
+unsigned long lastRead = 0;
+
+void setup() {
+  Serial.begin(115200);
+  thing.add_wifi(SSID, SSID_PASSWORD);
+  dht.begin();
+
+  thing["dht11"] >> [](pson& out){
+    out["temperatura"] = temperatura;
+    out["humedad"] = humedad;
+  };
+}
+
+void loop() {
+  thing.handle();
+
+  // Leer DHT cada 2 segundos
+  if (millis() - lastRead > 2000) {
+    lastRead = millis();
+    float h = dht.readHumidity();
+    float t = dht.readTemperature();
+
+    if (!isnan(h) && !isnan(t)) {
+      humedad = h;
+      temperatura = t;
+    }
+  }
+}

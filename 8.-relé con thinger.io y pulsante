@@ -1,0 +1,57 @@
+#include <ThingerESP32.h>
+
+// --- TUS DATOS ---
+#define USER_ID             "jonnathan714"
+#define DEVICE_ID           "jonna"
+#define DEVICE_CREDENTIAL   "714126"
+
+#define SSID                "MECATRONICA_3ABC"
+#define SSID_PASSWORD       "MEC2025@."
+
+// --- PINES ---
+#define RELAY_PIN           5  
+#define BUTTON_PIN          4  
+
+ThingerESP32 thin(USER_ID, DEVICE_ID, DEVICE_CREDENTIAL);
+
+// Variables globales
+bool estadoFoco = false; 
+bool ultimoEstadoBoton = LOW;
+
+void setup() {
+  pinMode(RELAY_PIN, OUTPUT);
+  pinMode(BUTTON_PIN, INPUT_PULLDOWN);
+  digitalWrite(RELAY_PIN, LOW);
+
+  thin.add_wifi(SSID, SSID_PASSWORD);
+
+  // RECURSO SIMPLIFICADO
+  thin["RELE"] << [](pson& in){
+    if(in.is_empty()) {
+      in = estadoFoco; 
+    } else {
+      estadoFoco = in; 
+      digitalWrite(RELAY_PIN, estadoFoco ? HIGH : LOW);
+    }
+  };
+}
+
+void loop() {
+  thin.handle();
+
+  bool lecturaActual = digitalRead(BUTTON_PIN);
+
+  // Detección del pulsante
+  if (lecturaActual == HIGH && ultimoEstadoBoton == LOW) {
+    delay(50); // Anti-rebote
+    
+    estadoFoco = !estadoFoco; // Cambiamos el estado lógico
+    digitalWrite(RELAY_PIN, estadoFoco ? HIGH : LOW); // Cambiamos el relé físico
+    
+    // --- NUEVA FORMA DE ACTUALIZAR (Línea 51 corregida) ---
+    // Esta función envía el valor actual de 'foco' al servidor
+    thin.stream(thin["RELE"]); 
+  }
+
+  ultimoEstadoBoton = lecturaActual;
+}

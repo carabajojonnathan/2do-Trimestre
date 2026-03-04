@@ -1,0 +1,18 @@
+const int ledPin = 2;
+
+void setup() {
+  // Configura o pino do LED como saída
+  pinMode(2, OUTPUT);
+  pinMode(15, OUTPUT);
+}
+
+void loop() {
+  digitalWrite(2, HIGH); // Liga o LED
+  digitalWrite(15, HIGH); // Liga o Rele
+  delay(500); // Espera 1 segundo
+  
+  digitalWrite(2 , LOW);   // Desliga o LED
+  digitalWrite(15 , LOW);   // Desliga o Rele
+  
+  delay(500);
+}

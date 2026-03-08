@@ -1,0 +1,61 @@
+#include <WiFi.h>
+
+const char* ssid = "";
+const char* password = "";
+
+WiFiServer server(80);
+
+int rele = 26;
+
+void setup() {
+
+  Serial.begin(115200);
+  pinMode(rele, OUTPUT);
+  digitalWrite(rele, LOW);
+
+  WiFi.begin(ssid, password);
+
+  Serial.print("Conectando");
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("WiFi conectado");
+
+  Serial.println(WiFi.localIP());
+
+  server.begin();
+}
+
+void loop() {
+
+  WiFiClient client = server.available();
+
+  if (client) {
+
+    String request = client.readStringUntil('\r');
+    client.flush();
+
+    if (request.indexOf("/ON") != -1) {
+      digitalWrite(rele, HIGH);
+    }
+
+    if (request.indexOf("/OFF") != -1) {
+      digitalWrite(rele, LOW);
+    }
+
+    client.println("HTTP/1.1 200 OK");
+    client.println("Content-Type: text/html");
+    client.println("");
+
+    client.println("<h1>Control de Foco</h1>");
+    client.println("<a href=\"/ON\"><button>ENCENDER</button></a>");
+    client.println("<a href=\"/OFF\"><button>APAGAR</button></a>");
+
+    delay(1);
+    client.stop();
+  }
+}
